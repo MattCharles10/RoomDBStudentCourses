@@ -1,4 +1,4 @@
-package com.example.studentcourseapp.data.repository
+package com.example.studentcourseapp.repository
 
 import com.example.studentcourseapp.data.daos.*
 import com.example.studentcourseapp.data.entities.*
