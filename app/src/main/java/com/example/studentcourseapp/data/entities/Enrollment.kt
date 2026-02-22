@@ -6,32 +6,30 @@ import androidx.room.Index
 import androidx.room.PrimaryKey
 
 @Entity(
-    tableName = "enrollment" ,
+    tableName = "enrollments",
     foreignKeys = [
         ForeignKey(
-            entity = Student :: class,
-            parentColumns = ["studentsId"],
-            childColumns = ["studentsId"],
+            entity = Student::class,
+            parentColumns = ["studentId"],
+            childColumns = ["studentId"],
             onDelete = ForeignKey.CASCADE
         ),
         ForeignKey(
-            entity = Course :: class ,
+            entity = Course::class,
             parentColumns = ["courseId"],
             childColumns = ["courseId"],
             onDelete = ForeignKey.CASCADE
         )
     ],
-    indices = [Index(value = ["studentId" , "courseId"] , unique = true)]
+    indices = [
+        Index(value = ["studentId", "courseId"], unique = true)
+    ]
 )
-
-
 data class Enrollment(
-
     @PrimaryKey(autoGenerate = true)
-    val enrollment: Long = 0,
-    val student : Long,
-    val courseId : Long,
+    val enrollmentId: Long = 0,
+    val studentId: Long,
+    val courseId: Long,
     val enrollmentDate: Long = System.currentTimeMillis(),
-    val grade : String ?= null
-
+    val grade: String? = null
 )

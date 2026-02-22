@@ -12,10 +12,6 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.studentcourseapp.data.entities.Student
 import com.example.studentcourseapp.ui.StudentAdapter
 import com.example.studentcourseapp.viewmodel.SchoolViewModel
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 
 class MainActivity : AppCompatActivity() {
 
@@ -48,7 +44,7 @@ class MainActivity : AppCompatActivity() {
         recyclerView.layoutManager = LinearLayoutManager(this)
         recyclerView.adapter = studentAdapter
 
-        // Observe students
+        // Observe students - CORRECT SYNTAX
         viewModel.allStudents.observe(this) { students ->
             studentAdapter.updateStudents(students)
         }
@@ -63,9 +59,8 @@ class MainActivity : AppCompatActivity() {
         btnAddStudent.setOnClickListener { showAddStudentDialog() }
         btnAddCourse.setOnClickListener { showAddCourseDialog() }
         btnViewStudents.setOnClickListener {
-            viewModel.allStudents.observe(this) { students ->
-                studentAdapter.updateStudents(students)
-            }
+            // Refresh - already observing automatically
+            Toast.makeText(this, "Refreshing students...", Toast.LENGTH_SHORT).show()
         }
         btnViewCourses.setOnClickListener { showCoursesDialog() }
     }
@@ -143,48 +138,45 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun showEnrollDialog(student: Student) {
-        CoroutineScope(Dispatchers.Main).launch {
-            val courses = viewModel.allCourses.value ?: emptyList()
-            if (courses.isEmpty()) {
-                Toast.makeText(this@MainActivity, "No courses available", Toast.LENGTH_SHORT).show()
-                return@launch
-            }
-
-            val courseNames = courses.map { it.courseName }.toTypedArray()
-
-            AlertDialog.Builder(this@MainActivity)
-                .setTitle("Enroll ${student.name}")
-                .setItems(courseNames) { _, which ->
-                    val course = courses[which]
-                    viewModel.enrollStudentInCourse(student.studentId, course.courseId)
-                    Toast.makeText(
-                        this@MainActivity,
-                        "Enrolled in ${course.courseName}",
-                        Toast.LENGTH_SHORT
-                    ).show()
-                }
-                .setNegativeButton("Cancel", null)
-                .show()
+        // Get current courses from ViewModel
+        val currentCourses = viewModel.allCourses.value
+        if (currentCourses.isNullOrEmpty()) {
+            Toast.makeText(this, "No courses available. Please add courses first.", Toast.LENGTH_SHORT).show()
+            return
         }
+
+        val courseNames = currentCourses.map { it.courseName }.toTypedArray()
+
+        AlertDialog.Builder(this)
+            .setTitle("Enroll ${student.name}")
+            .setItems(courseNames) { _, which ->
+                val course = currentCourses[which]
+                viewModel.enrollStudentInCourse(student.studentId, course.courseId)
+                Toast.makeText(
+                    this,
+                    "${student.name} enrolled in ${course.courseName}",
+                    Toast.LENGTH_SHORT
+                ).show()
+            }
+            .setNegativeButton("Cancel", null)
+            .show()
     }
 
     private fun showCoursesDialog() {
-        CoroutineScope(Dispatchers.Main).launch {
-            val courses = viewModel.allCourses.value ?: emptyList()
-            if (courses.isEmpty()) {
-                Toast.makeText(this@MainActivity, "No courses available", Toast.LENGTH_SHORT).show()
-                return@launch
-            }
-
-            val courseList = courses.joinToString("\n") {
-                "${it.courseName} (${it.courseCode}) - ${it.credits} credits\nInstructor: ${it.instructor}"
-            }
-
-            AlertDialog.Builder(this@MainActivity)
-                .setTitle("All Courses")
-                .setMessage(courseList)
-                .setPositiveButton("OK", null)
-                .show()
+        val currentCourses = viewModel.allCourses.value
+        if (currentCourses.isNullOrEmpty()) {
+            Toast.makeText(this, "No courses available", Toast.LENGTH_SHORT).show()
+            return
         }
+
+        val courseList = currentCourses.joinToString("\n\n") {
+            "📘 ${it.courseName} (${it.courseCode})\n   Credits: ${it.credits}\n   Instructor: ${it.instructor}"
+        }
+
+        AlertDialog.Builder(this)
+            .setTitle("All Courses (${currentCourses.size})")
+            .setMessage(courseList)
+            .setPositiveButton("OK", null)
+            .show()
     }
 }

@@ -2,20 +2,28 @@ package com.example.studentcourseapp.viewmodel
 
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
 import com.example.studentcourseapp.data.database.AppDatabase
 import com.example.studentcourseapp.data.entities.Course
 import com.example.studentcourseapp.data.entities.Student
 import com.example.studentcourseapp.repository.SchoolRepository
-import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.launch
 
 class SchoolViewModel(application: Application) : AndroidViewModel(application) {
 
     private val repository: SchoolRepository
 
-    val allStudents: Flow<List<Student>>
-    val allCourses: Flow<List<Course>>
+    // Use MutableLiveData internally
+    private val _allStudents = MutableLiveData<List<Student>>()
+    val allStudents: LiveData<List<Student>> get() = _allStudents
+
+    private val _allCourses = MutableLiveData<List<Course>>()
+    val allCourses: LiveData<List<Course>> get() = _allCourses
+
+    private val _searchResults = MutableLiveData<List<Student>>()
+    val searchResults: LiveData<List<Student>> get() = _searchResults
 
     init {
         val database = AppDatabase.getDatabase(application)
@@ -25,8 +33,25 @@ class SchoolViewModel(application: Application) : AndroidViewModel(application) 
             database.enrollmentDao()
         )
 
-        allStudents = repository.getAllStudents()
-        allCourses = repository.getAllCourses()
+        // Load initial data
+        loadAllStudents()
+        loadAllCourses()
+    }
+
+    private fun loadAllStudents() {
+        viewModelScope.launch {
+            repository.getAllStudents().collect { students ->
+                _allStudents.postValue(students)
+            }
+        }
+    }
+
+    private fun loadAllCourses() {
+        viewModelScope.launch {
+            repository.getAllCourses().collect { courses ->
+                _allCourses.postValue(courses)
+            }
+        }
     }
 
     fun addStudent(name: String, email: String, phone: String) {
@@ -37,6 +62,7 @@ class SchoolViewModel(application: Application) : AndroidViewModel(application) 
                 phone = phone
             )
             repository.addStudent(student)
+            // Data will auto-refresh through Flow collection
         }
     }
 
@@ -49,6 +75,7 @@ class SchoolViewModel(application: Application) : AndroidViewModel(application) 
                 instructor = instructor
             )
             repository.addCourse(course)
+            // Data will auto-refresh through Flow collection
         }
     }
 
@@ -58,5 +85,12 @@ class SchoolViewModel(application: Application) : AndroidViewModel(application) 
         }
     }
 
-    fun searchStudents(query: String): Flow<List<Student>> = repository.searchStudents(query)
+    fun searchStudents(query: String): LiveData<List<Student>> {
+        viewModelScope.launch {
+            repository.searchStudents(query).collect { students ->
+                _searchResults.postValue(students)
+            }
+        }
+        return _searchResults
+    }
 }

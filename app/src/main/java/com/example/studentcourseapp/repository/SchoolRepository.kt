@@ -1,7 +1,7 @@
 package com.example.studentcourseapp.repository
+
 import com.example.studentcourseapp.data.daos.*
 import com.example.studentcourseapp.data.entities.*
-
 import kotlinx.coroutines.flow.Flow
 
 class SchoolRepository(
@@ -26,7 +26,7 @@ class SchoolRepository(
     // Enrollment operations
     suspend fun enrollStudent(studentId: Long, courseId: Long) {
         val enrollment = Enrollment(
-            student = studentId,
+            studentId = studentId,
             courseId = courseId
         )
         enrollmentDao.enrollStudent(enrollment)
