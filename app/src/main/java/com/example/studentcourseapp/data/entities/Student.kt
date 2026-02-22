@@ -8,7 +8,7 @@ import androidx.room.PrimaryKey
 
 @Entity("students")
 data class Student(
-    @PrimaryKey
+    @PrimaryKey(autoGenerate = true)
     val studentId : Long = 0,
     val name : String ,
     val email: String ,

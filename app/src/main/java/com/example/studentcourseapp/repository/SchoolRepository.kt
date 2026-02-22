@@ -1,12 +1,8 @@
 package com.example.studentcourseapp.repository
-
 import com.example.studentcourseapp.data.daos.*
 import com.example.studentcourseapp.data.entities.*
-import com.example.studentcourseapp.data.relationships.CourseWithStudents
-import com.example.studentcourseapp.data.relationships.StudentWithCourses
+
 import kotlinx.coroutines.flow.Flow
-
-
 
 class SchoolRepository(
     private val studentDao: StudentsDao,
@@ -20,16 +16,12 @@ class SchoolRepository(
     suspend fun deleteStudent(student: Student) = studentDao.deleteStudent(student)
     fun getAllStudents(): Flow<List<Student>> = studentDao.getAllStudents()
     fun searchStudents(query: String): Flow<List<Student>> = studentDao.searchStudents(query)
-    fun getStudentWithCourses(studentId: Long): Flow<StudentWithCourses?> =
-        studentDao.getStudentWithCourse(studentId)
 
     // Course operations
     suspend fun addCourse(course: Course): Long = courseDao.insertCourse(course)
     suspend fun updateCourse(course: Course) = courseDao.updateCourse(course)
     suspend fun deleteCourse(course: Course) = courseDao.deleteCourse(course)
     fun getAllCourses(): Flow<List<Course>> = courseDao.getAllCourse()
-    fun getCourseWithStudents(courseId: Long): Flow<CourseWithStudents?> =
-        courseDao.getCourseWithStudents(courseId)
 
     // Enrollment operations
     suspend fun enrollStudent(studentId: Long, courseId: Long) {

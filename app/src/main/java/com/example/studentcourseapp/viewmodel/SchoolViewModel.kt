@@ -1,14 +1,11 @@
 package com.example.studentcourseapp.viewmodel
 
-
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.studentcourseapp.data.database.AppDatabase
 import com.example.studentcourseapp.data.entities.Course
 import com.example.studentcourseapp.data.entities.Student
-import com.example.studentcourseapp.data.relationships.CourseWithStudents
-import com.example.studentcourseapp.data.relationships.StudentWithCourses
 import com.example.studentcourseapp.repository.SchoolRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.launch
@@ -61,20 +58,5 @@ class SchoolViewModel(application: Application) : AndroidViewModel(application) 
         }
     }
 
-    fun withdrawStudentFromCourse(studentId: Long, courseId: Long) {
-        viewModelScope.launch {
-            repository.withdrawStudent(studentId, courseId)
-        }
-    }
-
-    fun getStudentWithCourses(studentId: Long): Flow<StudentWithCourses?> =
-        repository.getStudentWithCourses(studentId)
-
-    fun getCourseWithStudents(courseId: Long): Flow<CourseWithStudents?> =
-        repository.getCourseWithStudents(courseId)
-
     fun searchStudents(query: String): Flow<List<Student>> = repository.searchStudents(query)
-
-    fun getEnrollmentCountForCourse(courseId: Long): Flow<Int> =
-        repository.getEnrollmentCountForCourse(courseId)
 }

@@ -8,7 +8,6 @@ import androidx.room.PrimaryKey
 data class Course(
     @PrimaryKey(autoGenerate = true)
     val courseId: Long = 0,
-
     val courseName: String,
     val courseCode: String,
     val credits: Int,

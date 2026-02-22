@@ -1,5 +1,6 @@
 package com.example.studentcourseapp.data.daos
 
+import androidx.room.Dao
 import androidx.room.Delete
 import androidx.room.Insert
 import androidx.room.Query
@@ -9,6 +10,8 @@ import com.example.studentcourseapp.data.entities.Course
 import com.example.studentcourseapp.data.relationships.CourseWithStudents
 import kotlinx.coroutines.flow.Flow
 
+
+@Dao
 interface CourseDao {
 
 
@@ -27,8 +30,5 @@ interface CourseDao {
     @Query("SELECT * FROM courses WHERE courseId = :courseId")
     suspend fun getCourseById(courseId: Long): Course?
 
-    @Transaction
-    @Query("SELECT * FROM courses WHERE courseId = :courseId")
-    fun getCourseWithStudents(courseId: Long): Flow<CourseWithStudents?>
 
 }

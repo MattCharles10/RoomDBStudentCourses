@@ -1,5 +1,6 @@
 package com.example.studentcourseapp.data.daos
 
+import androidx.room.Dao
 import androidx.room.Delete
 import androidx.room.Insert
 import androidx.room.Query
@@ -8,6 +9,8 @@ import kotlinx.coroutines.flow.Flow
 import com.example.studentcourseapp.data.entities.Student
 import com.example.studentcourseapp.data.relationships.StudentWithCourses
 
+
+@Dao
 interface StudentsDao {
 
     @Insert
@@ -24,7 +27,7 @@ interface StudentsDao {
 
 
     @Query("SELECT * FROM students WHERE studentId = :studentId")
-    fun getStudentWithCourse(studentId: Long) : Flow<StudentWithCourses?>
+    fun getStudentWithCourse(studentId: Long) : Student?
 
     @Query("SELECT * FROM students WHERE name LIKE '%' || :searchQuery || '%' OR email LIKE '%' || :searchQuery || '%'")
     fun searchStudents(searchQuery : String) : Flow<List<Student>>
