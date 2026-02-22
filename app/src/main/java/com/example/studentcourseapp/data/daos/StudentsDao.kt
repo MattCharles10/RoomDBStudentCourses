@@ -17,7 +17,7 @@ interface StudentsDao {
     suspend fun  updateStudent(student: Student)
 
     @Delete
-    suspend fun deleStudent(student : Student)
+    suspend fun deleteStudent(student : Student)
 
     @Query("SELECT * FROM students ORDER BY name ASC")
     fun getAllStudents() : Flow<List<Student>>
