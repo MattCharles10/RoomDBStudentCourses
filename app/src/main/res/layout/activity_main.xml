@@ -5,58 +5,89 @@
     android:layout_height="match_parent"
     android:orientation="vertical"
     android:padding="16dp"
+    android:background="#F5F5F5"
     tools:context=".MainActivity">
 
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Student Course Management"
+        android:text="🎓 Student Course Management"
         android:textSize="24sp"
         android:textStyle="bold"
+        android:textColor="#6200EE"
         android:gravity="center"
         android:layout_marginBottom="24dp"/>
 
-    <Button
-        android:id="@+id/btnAddStudent"
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Add New Student"
-        android:layout_marginBottom="8dp"/>
+        android:orientation="horizontal">
 
-    <Button
-        android:id="@+id/btnAddCourse"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Add New Course"
-        android:layout_marginBottom="8dp"/>
+        <Button
+            android:id="@+id/btnAddStudent"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="➕ Add Student"
+            android:textAllCaps="false"
+            android:backgroundTint="#6200EE"
+            android:layout_marginEnd="4dp"/>
 
-    <Button
-        android:id="@+id/btnViewStudents"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="View All Students"
-        android:layout_marginBottom="8dp"/>
+        <Button
+            android:id="@+id/btnAddCourse"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="📚 Add Course"
+            android:textAllCaps="false"
+            android:backgroundTint="#03DAC5"
+            android:layout_marginStart="4dp"/>
+    </LinearLayout>
 
-    <Button
-        android:id="@+id/btnViewCourses"
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="View All Courses"
-        android:layout_marginBottom="8dp"/>
+        android:orientation="horizontal"
+        android:layout_marginTop="8dp">
+
+        <Button
+            android:id="@+id/btnViewStudents"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="👥 View Students"
+            android:textAllCaps="false"
+            android:backgroundTint="#FF4081"
+            android:layout_marginEnd="4dp"/>
+
+        <Button
+            android:id="@+id/btnViewCourses"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="📖 View Courses"
+            android:textAllCaps="false"
+            android:backgroundTint="#FF9800"
+            android:layout_marginStart="4dp"/>
+    </LinearLayout>
 
     <EditText
         android:id="@+id/editSearch"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="Search students..."
+        android:hint="🔍 Search students..."
         android:layout_marginTop="16dp"
-        android:padding="12dp"/>
+        android:padding="12dp"
+        android:background="@drawable/search_background"
+        android:drawableStart="@android:drawable/ic_menu_search"
+        android:drawablePadding="8dp"/>
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recyclerView"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1"
-        android:layout_marginTop="8dp"/>
+        android:layout_marginTop="8dp"
+        android:background="@android:color/white"/>
 
 </LinearLayout>
