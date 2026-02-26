@@ -17,9 +17,10 @@ data class Task(
     val dueDate: Date,
     val isCompleted: Boolean = false,
     val reminderTime: Date? = null,
-    val createdAt: Date = Date()
+    val createdAt: Date = Date(),
+    val lastSynced: Date? = null
 ) : Parcelable
 
 enum class Priority {
-    HIGH, MEDIUM, LOW
+    LOW, MEDIUM, HIGH, URGENT
 }

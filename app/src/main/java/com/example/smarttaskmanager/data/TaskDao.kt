@@ -1,6 +1,6 @@
 package com.example.smarttaskmanager.data
 
-import androidx.lifecycle.LiveData
+
 import androidx.room.Dao
 import androidx.room.Delete
 import androidx.room.Insert
@@ -12,15 +12,17 @@ import java.util.Date
 
 @Dao
 interface TaskDao {
-
     @Query("SELECT * FROM tasks ORDER BY dueDate ASC")
     fun getAllTasks(): Flow<List<Task>>
 
-    @Query("SELECT * FROM tasks WHERE isCompleted = 0 ORDER BY priority DESC, dueDate ASC")
-    fun getPendingTasks(): LiveData<List<Task>>
+    @Query("SELECT * FROM tasks WHERE isCompleted = :isCompleted ORDER BY dueDate ASC")
+    fun getTasksByCompletion(isCompleted: Boolean): Flow<List<Task>>
+
+    @Query("SELECT * FROM tasks WHERE dueDate BETWEEN :start AND :end")
+    suspend fun getTasksDueBetween(start: Date, end: Date): List<Task>
 
     @Query("SELECT * FROM tasks WHERE id = :taskId")
-    suspend fun getTaskById(taskId: Long): Task?
+    fun getTaskById(taskId: Long): Flow<Task>
 
     @Insert
     suspend fun insertTask(task: Task): Long
@@ -31,7 +33,6 @@ interface TaskDao {
     @Delete
     suspend fun deleteTask(task: Task)
 
-    @Query("SELECT * FROM tasks WHERE reminderTime IS NOT NULL AND reminderTime > :now")
-    fun getUpcomingReminders(now: Date): Flow<List<Task>>
-
+    @Query("DELETE FROM tasks WHERE isCompleted = 1 AND dueDate < :date")
+    suspend fun deleteOldCompletedTasks(date: Date)
 }
