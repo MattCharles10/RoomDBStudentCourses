@@ -1,63 +1,67 @@
 package com.example.smarttaskmanager.ui.tasklist
 
-import android.app.Application
-import androidx.lifecycle.AndroidViewModel
-import androidx.lifecycle.SavedStateHandle
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.asLiveData
 import androidx.lifecycle.viewModelScope
+import com.example.smarttaskmanager.data.Priority
 import com.example.smarttaskmanager.data.Task
-import com.example.smarttaskmanager.data.TaskDatabase
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.catch
+import com.example.smarttaskmanager.data.TaskDao
+import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
+import java.util.*
 
 class TaskListViewModel(
-    application: Application,
-    private val savedStateHandle: SavedStateHandle
-) : AndroidViewModel(application) {
+    private val taskDao: TaskDao
+) : ViewModel() {
 
-    private val database = TaskDatabase.getInstance(application)
-    private val taskDao = database.taskDao()
-
-    // StateFlow for UI state (survives configuration changes)
+    // StateFlow for UI state
     private val _uiState = MutableStateFlow(TaskListState())
-    val uiState: StateFlow<TaskListState> = _uiState
+    val uiState: StateFlow<TaskListState> = _uiState.asStateFlow()
 
-    // LiveData for tasks (can also use Flow)
-    val pendingTasks = taskDao.getPendingTasks()
+    // LiveData example for comparison
+    val allTasksLiveData = taskDao.getAllTasks().asLiveData()
 
-    init {
-        loadTasks()
-        // Restore last selected filter from saved state (handles process death)
-        savedStateHandle.get<String>("filter")?.let { filter ->
-            _uiState.value = _uiState.value.copy(filter = filter)
+    // Filtered tasks using Flow
+    val filteredTasks = taskDao.getAllTasks()
+        .combine(_uiState) { tasks, state ->
+            filterAndSortTasks(tasks, state)
         }
+        .stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(5000),
+            initialValue = emptyList()
+        )
+
+    private fun filterAndSortTasks(tasks: List<Task>, state: TaskListState): List<Task> {
+        return tasks
+            .filter { task ->
+                when (state.filter) {
+                    TaskFilter.ALL -> true
+                    TaskFilter.ACTIVE -> !task.isCompleted
+                    TaskFilter.COMPLETED -> task.isCompleted
+                    TaskFilter.HIGH_PRIORITY -> task.priority >= Priority.HIGH
+                }
+            }
+            .sortedWith(
+                when (state.sortBy) {
+                    SortBy.DATE -> compareBy<Task> { it.dueDate }
+                    SortBy.PRIORITY -> compareByDescending<Task> { it.priority }
+                    SortBy.TITLE -> compareBy { it.title }
+                }
+            )
     }
 
-    private fun loadTasks() {
-        viewModelScope.launch {
-            taskDao.getAllTasks()
-                .catch { exception ->
-                    _uiState.value = _uiState.value.copy(
-                        error = exception.message
-                    )
-                }
-                .collect { tasks ->
-                    _uiState.value = _uiState.value.copy(
-                        tasks = tasks,
-                        isLoading = false
-                    )
-                }
-        }
+    fun updateFilter(filter: TaskFilter) {
+        _uiState.update { it.copy(filter = filter) }
+    }
+
+    fun updateSort(sortBy: SortBy) {
+        _uiState.update { it.copy(sortBy = sortBy) }
     }
 
     fun toggleTaskCompletion(task: Task) {
         viewModelScope.launch {
-            val updatedTask = task.copy(isCompleted = !task.isCompleted)
-            taskDao.updateTask(updatedTask)
-
-            // Save last action to saved state (handles process death)
-            savedStateHandle.set("last_action", "Toggled: ${task.title}")
+            taskDao.updateTask(task.copy(isCompleted = !task.isCompleted))
         }
     }
 
@@ -67,16 +71,13 @@ class TaskListViewModel(
         }
     }
 
-    override fun onCleared() {
-        super.onCleared()
-        // Save current filter to saved state
-        savedStateHandle.set("filter", _uiState.value.filter)
-    }
+    data class TaskListState(
+        val filter: TaskFilter = TaskFilter.ALL,
+        val sortBy: SortBy = SortBy.DATE,
+        val isLoading: Boolean = false,
+        val error: String? = null
+    )
 }
 
-data class TaskListState(
-    val tasks: List<Task> = emptyList(),
-    val isLoading: Boolean = true,
-    val error: String? = null,
-    val filter: String = "all"
-)
+enum class TaskFilter { ALL, ACTIVE, COMPLETED, HIGH_PRIORITY }
+enum class SortBy { DATE, PRIORITY, TITLE }

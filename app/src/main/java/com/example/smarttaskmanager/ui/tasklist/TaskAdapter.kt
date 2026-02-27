@@ -8,11 +8,15 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.example.smarttaskmanager.data.Task
+import java.text.SimpleDateFormat
+import java.util.Locale
+import kotlinx.coroutines.flow.*
+
 
 
 class TaskAdapter(
-    private val onTaskClick: (Task) -> Unit,
-    private val onTaskToggle: (Task) -> Unit
+    private val onItemClick: (Task) -> Unit,
+    private val onCheckboxClick: (Task) -> Unit
 ) : ListAdapter<Task, TaskAdapter.TaskViewHolder>(TaskDiffCallback()) {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): TaskViewHolder {
@@ -32,16 +36,21 @@ class TaskAdapter(
         private val binding: ItemTaskBinding
     ) : RecyclerView.ViewHolder(binding.root) {
 
+        private val dateFormat = SimpleDateFormat("MMM dd, yyyy HH:mm", Locale.getDefault())
+
         fun bind(task: Task) {
             binding.apply {
-                tvTitle.text = task.title
-                tvDueDate.text = task.dueDate.toString()
-                priorityIndicator.setPriority(task.priority)
+                taskTitle.text = task.title
+                taskDescription.text = task.description
+                taskDueDate.text = dateFormat.format(task.dueDate)
+                taskPriorityIndicator.setPriority(task.priority)
+                taskCheckbox.isChecked = task.isCompleted
 
-                root.setOnClickListener { onTaskClick(task) }
-                cbCompleted.setOnCheckedChangeListener(null)
-                cbCompleted.isChecked = task.isCompleted
-                cbCompleted.setOnCheckedChangeListener { _, _ -> onTaskToggle(task) }
+                // Handle click events
+                root.setOnClickListener { onItemClick(task) }
+                taskCheckbox.setOnCheckedChangeListener { _, _ ->
+                    onCheckboxClick(task)
+                }
             }
         }
     }

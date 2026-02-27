@@ -4,6 +4,7 @@ plugins {
     id("kotlin-kapt")
     id("kotlin-parcelize")
     id("androidx.navigation.safeargs.kotlin")
+    id("com.google.dagger.hilt.android")
 }
 
 android {
@@ -58,7 +59,7 @@ dependencies {
     androidTestImplementation("androidx.test.ext:junit:1.1.5")
     androidTestImplementation("androidx.test.espresso:espresso-core:3.5.1")
 
-    // Lifecycle Components (ViewModel, LiveData, Lifecycle)
+    // Lifecycle Components
     implementation("androidx.lifecycle:lifecycle-viewmodel-ktx:2.7.0")
     implementation("androidx.lifecycle:lifecycle-livedata-ktx:2.7.0")
     implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.7.0")
@@ -82,10 +83,36 @@ dependencies {
 
     // RecyclerView
     implementation("androidx.recyclerview:recyclerview:1.3.2")
+    implementation("androidx.recyclerview:recyclerview-selection:1.1.0")
 
     // Preference (for Settings)
     implementation("androidx.preference:preference-ktx:1.2.1")
 
     // ViewPager2
     implementation("androidx.viewpager2:viewpager2:1.0.0")
+
+    // Date/Time handling
+    implementation("com.jakewharton.threetenabp:threetenabp:1.4.6")
+
+    // Logging
+    implementation("com.jakewharton.timber:timber:5.0.1")
+
+    // Hilt for Dependency Injection
+    implementation("com.google.dagger:hilt-android:2.48")
+    kapt("com.google.dagger:hilt-compiler:2.48")
+
+    // Hilt with ViewModel
+    implementation("androidx.hilt:hilt-navigation-fragment:1.1.0")
+
+    // Hilt with WorkManager
+    implementation("androidx.hilt:hilt-work:1.1.0")
+    kapt("androidx.hilt:hilt-compiler:1.1.0")
+
+    // Debug database
+    debugImplementation("com.amitshekhar.android:debug-db:1.0.6")
+}
+
+// Add kapt configuration
+kapt {
+    correctErrorTypes = true
 }
