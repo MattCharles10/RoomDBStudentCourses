@@ -33,15 +33,14 @@ abstract class TaskDatabase : RoomDatabase() {
 }
 
 class Converters {
-    @TypeConverter
-    fun fromTimestamp(value: Long?): Date? = value?.let { Date(it) }
 
-    @TypeConverter
-    fun dateToTimestamp(date: Date?): Long? = date?.time
 
-    @TypeConverter
+    @androidx.room.TypeConverter
     fun fromPriority(priority: Priority): String = priority.name
 
-    @TypeConverter
+    @androidx.room.TypeConverter
     fun toPriority(priority: String): Priority = Priority.valueOf(priority)
+
+
+
 }

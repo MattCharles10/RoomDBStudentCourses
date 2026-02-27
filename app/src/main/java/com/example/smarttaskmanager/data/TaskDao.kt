@@ -12,14 +12,18 @@ import java.util.Date
 
 @Dao
 interface TaskDao {
+
     @Query("SELECT * FROM tasks ORDER BY dueDate ASC")
     fun getAllTasks(): Flow<List<Task>>
 
     @Query("SELECT * FROM tasks WHERE isCompleted = :isCompleted ORDER BY dueDate ASC")
     fun getTasksByCompletion(isCompleted: Boolean): Flow<List<Task>>
 
+    @Query("SELECT * FROM tasks WHERE priority = :priority ORDER BY dueDate ASC")
+    fun getTasksByPriority(priority: Priority): Flow<List<Task>>
+
     @Query("SELECT * FROM tasks WHERE dueDate BETWEEN :start AND :end")
-    suspend fun getTasksDueBetween(start: Date, end: Date): List<Task>
+    suspend fun getTasksDueBetween(start: Long, end: Long): List<Task>
 
     @Query("SELECT * FROM tasks WHERE id = :taskId")
     fun getTaskById(taskId: Long): Flow<Task>
@@ -34,5 +38,8 @@ interface TaskDao {
     suspend fun deleteTask(task: Task)
 
     @Query("DELETE FROM tasks WHERE isCompleted = 1 AND dueDate < :date")
-    suspend fun deleteOldCompletedTasks(date: Date)
+    suspend fun deleteOldCompletedTasks(date: Long)
+
+    @Query("SELECT COUNT(*) FROM tasks WHERE isCompleted = 0")
+    fun getPendingTasksCount(): Flow<Int>
 }
